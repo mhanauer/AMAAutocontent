@@ -14,6 +14,7 @@ setwd("~/Desktop")
 ama_edu = read.csv("AMAEducation.csv", header = TRUE)
 library(devtools)
 library(ReadMe)
+library(reshape2)
 ```
 Start cleaning the data
 Need to keep all the data, because you are going to put it back later on
@@ -39,7 +40,7 @@ head(ama_edu_sample)
 Ok now just run assign random
 ```{r}
 n/3
-truth = c(rep(0, n/3), rep(1, n/3), rep(2, n/3))
+truth_dat = c(rep(0, n/3), rep(1, n/3), rep(2, n/3))
 ```
 Now start to prep the data for Readme
 ```{r}
@@ -49,13 +50,40 @@ csv2txt("~/Desktop/QualAuto", labels = 1)
 ```
 Now create the control_file
 ```{r}
-col_name = replicate(dim(ama_edu)[1], rnorm(1,0,1))
-col_name = data.frame(t(col_name))
-names(col_name) = paste0("~/Desktop/QualAuto/",1:ncol(col_name), ".txt")
-library(reshape2)
-col_name = melt(col_name)
-col_name =  data.frame(col_name$variable)
-colnames(col_name) = "filename"
-col_name = data.frame(col_name)
-dim(col_name)
+filename = replicate(dim(ama_edu)[1], rnorm(1,0,1))
+filename = data.frame(t(filename))
+names(filename) = paste0("~/Desktop/QualAuto/",1:ncol(filename), ".txt")
+filename = melt(filename)
+filename =  data.frame(filename$variable)
+colnames(filename) = "filename"
+filename = data.frame(filename)
+dim(filename)
+```
+Create the truth file.  This file has the first responses with what the truth is and then the rest are blank which are filled in by ""
+```{r}
+truth_blank = data.frame(truth = rep("", dim(ama_edu)[1]-n))
+truth_dat = data.frame(truth = truth_dat)
+truth = rbind(truth_dat, truth_blank)
+dim(truth)
+dim(ama_edu)
+```
+Now put together whether the data is the training set or not
+```{r}
+trainingset = c(rep(1, n), rep(0, dim(ama_edu)[1]-n))
+length(trainingset)
+```
+Now put together the data set
+```{r}
+control = cbind(filename, truth, trainingset)
+write.table(control, "control.txt", row.names = FALSE, sep = ",")
+```
+Ok let's try it!!!
+Need to get rid of the path just the number and txt
+Put the files in the demofiles folder not the clinton posts
+```{r}
+oldwd <- getwd()
+setwd(system.file("demofiles", package="ReadMe"))
+undergrad.results <- undergrad(sep = ",")
+undergrad.preprocess <- preprocess(undergrad.results)
+readme.results <- readme(undergrad.preprocess, boot.se = TRUE)
 ```
