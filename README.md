@@ -12,7 +12,6 @@ Libraring packages
 ```{r}
 library(stringr)
 library(prettyR)
-library(Zelig)
 library(caret)
 library(quanteda)
 library(readtext)
@@ -39,7 +38,7 @@ Example: https://blog.paperspace.com/intro-to-datascience/
 ```{r}
 head(edu_dat)
 edu_dat$id = 1:dim(edu_dat)[1]
-
+head(edu_dat)
 ####Only get those that we classified
 edu_dat_class = edu_dat[1:286,]
 head(edu_dat_class)
@@ -90,6 +89,8 @@ dfm_test_full <- edu_dat_full_dfm[n:nrow(edu_dat_full_dfm),]
 ```
 Now build the model
 ```{r}
+library(quanteda)
+library(quanteda.textmodels)
 model_class = textmodel_nb(dfm_train_class, raw_train_class$CodesMatt)
 summary(model_class)
 
